@@ -3,32 +3,21 @@ package don.baton.demochainofresponsibility.matcher;
 import don.baton.demochainofresponsibility.entity.Booking;
 import don.baton.demochainofresponsibility.entity.Payment;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiPredicate;
 
 public abstract class AbstractMatcher implements Matchable {
-    protected Matchable nextMatcher;
+    protected List<BiPredicate<Payment, Booking>> rules = new ArrayList<>();
 
-    protected List<BiPredicate<Payment, Booking>> rules;
-
-    public AbstractMatcher() {
+    public Matchable addRule(BiPredicate<Payment, Booking> rule) {
+        rules.add(rule);
+        return this;
     }
 
-    protected AbstractMatcher(Matchable nextMatcher, List<BiPredicate<Payment, Booking>> rules) {
-        this.nextMatcher = nextMatcher;
-        this.rules = rules;
-    }
+    public abstract boolean match(Booking booking, Payment payment);
 
-    public abstract void init(Matchable nextMatcher, List<BiPredicate<Payment, Booking>> rules);
-
-    public void match(Booking booking, Payment payment) {
-        if(checkRules(booking, payment)){
-
-        }
-
-    }
-
-    private boolean checkRules(Booking booking, Payment payment) {
+    protected boolean checkRules(Booking booking, Payment payment) {
         return rules.stream()
                 .allMatch(x -> x.test(payment, booking));
     }
